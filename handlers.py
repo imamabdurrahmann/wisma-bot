@@ -50,7 +50,11 @@ class WismaHandler:
                 booking_id = msg.replace("/CANCEL ", "").strip()
                 return self.handle_cancel(booking_id)
 
-        # Handle main menu commands
+        # Handle in-progress booking state first
+        if sender in self.state:
+            return self.handle_booking_input(sender, message)
+
+        # Handle main menu commands (only when not in booking flow)
         if msg in ("1", "CEK", "CEK KETERSEDIAAN"):
             return self.handle_availability()
         if msg in ("2", "BOOKING"):
@@ -65,10 +69,6 @@ class WismaHandler:
         if msg == "MENU":
             self.reset_state(sender)
             return menu_message()
-
-        # Handle in-progress booking state
-        if sender in self.state:
-            return self.handle_booking_input(sender, message)
 
         # Default: show menu
         return menu_message()
